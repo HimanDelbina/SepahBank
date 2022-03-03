@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:sepah/Models/my_market.dart';
 import 'package:sepah/Static/url.dart';
+import 'package:sepah/Static/user.dart';
 
 class GoogleMapMarker extends StatefulWidget {
   const GoogleMapMarker({Key? key}) : super(key: key);
@@ -81,9 +82,9 @@ class _GoogleMapMarkerState extends State<GoogleMapMarker> {
         children: [
           lengthMarker != 0
               ? googleMap = GoogleMap(
-                  markers: markers!,
+                  markers: markers!.toSet(),
                   myLocationEnabled: true,
-                  myLocationButtonEnabled: false,
+                  myLocationButtonEnabled: true,
                   zoomControlsEnabled: false,
                   mapType: MapType.terrain,
                   initialCameraPosition:
@@ -127,7 +128,24 @@ class _GoogleMapMarkerState extends State<GoogleMapMarker> {
         markers = Set<Marker>();
         marker!.forEach((marker) async {
           var x = (marker).image;
-          final response = await http.get(Uri.parse(x!));
+          print((marker).user.id);
+          print("------------");
+          print(UserStaticFile.user_id);
+          String imageUrl = '';
+          if ((marker).user.id == UserStaticFile.user_id) {
+            if ((marker).selectMode == "1") {
+              imageUrl = "http://smartrebin.ir:2404/image/user/bazarRed.png";
+            } else if ((marker).selectMode == "2") {
+              imageUrl = "http://smartrebin.ir:2404/image/user/moshtariRed.png";
+            } else if ((marker).selectMode == "3") {
+              imageUrl = "http://smartrebin.ir:2404/image/user/shobeRed.png";
+            } else if ((marker).selectMode == "4") {
+              imageUrl = "http://smartrebin.ir:2404/image/user/taghirRed.png";
+            }
+          } else if ((marker).user.id != UserStaticFile.user_id) {
+            imageUrl = "http://smartrebin.ir:2404" + x!;
+          }
+          final response = await http.get(Uri.parse(imageUrl));
           markers!.add(Marker(
               markerId: MarkerId(
                 (marker).id.toString(),
@@ -135,8 +153,8 @@ class _GoogleMapMarkerState extends State<GoogleMapMarker> {
               icon: BitmapDescriptor.fromBytes(response.bodyBytes),
               position: LatLng((marker).lut, (marker).long),
               infoWindow: InfoWindow(
-                title: (marker).name.codeUnits,
-                snippet: (marker).description.codeUnits,
+                title: (marker).name,
+                snippet: (marker).description,
               )));
 
           setState(() {});

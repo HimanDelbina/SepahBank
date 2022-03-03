@@ -1,3 +1,3 @@
 class UrlStaticFile {
-  static String url = "http://192.168.1.2:2404/";
+  static String url = "http://smartrebin.ir:2404/";
 }
